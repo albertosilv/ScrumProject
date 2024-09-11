@@ -38,10 +38,13 @@ menuPrincipal usuarios tarefas sprints usuarioLogado = do
                     menuPrincipal usuarios tarefas sprints Nothing
         Just usuario -> do
             if usuarioPapel usuario == ProductOwner || usuarioPapel usuario == ScrumMaster
-                then menuAdministrador usuario usuarios tarefas sprints
-                else menuComum usuario usuarios tarefas sprints
+               then do
+                  (usuariosAtualizados, tarefasAtualizadas, sprintsAtualizados) <- menuAdministrador usuario usuarios tarefas sprints
+                  menuPrincipal usuariosAtualizados tarefasAtualizadas sprintsAtualizados Nothing
+               else do
+                  (usuariosAtualizados, tarefasAtualizadas, sprintsAtualizados) <- menuComum usuario usuarios tarefas sprints
+                  menuPrincipal usuariosAtualizados tarefasAtualizadas sprintsAtualizados Nothing
 
--- Função principal
 main :: IO ()
 main = do
   putStrLn "Bem-vindo ao Sistema de Gerenciamento Scrum"

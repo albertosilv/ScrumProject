@@ -1,12 +1,11 @@
 module TelaInicial where
 
-
-import Usuario (Usuario(..), modificarUsuario)
-import Tarefa (Tarefa, listarTarefasUsuario, backlogEmpresa)
 import Sprint (Sprint, listarSprint, listarSprintsDaEmpresa)
+import Tarefa (Tarefa, backlogEmpresa, listarTarefasUsuario)
+import Usuario (Usuario (..), modificarUsuario)
 
 -- Menu para Administrador
-menuAdministrador :: Usuario -> [Usuario]-> [Tarefa] -> [Sprint] -> IO ()
+menuAdministrador :: Usuario -> [Usuario] -> [Tarefa] -> [Sprint] -> IO ([Usuario], [Tarefa], [Sprint])
 menuAdministrador usuario usuarios tarefas sprints = do
   putStrLn "\nMenu Administrador:"
   putStrLn "1. Backlog"
@@ -19,19 +18,19 @@ menuAdministrador usuario usuarios tarefas sprints = do
       tarefasAtualizado <- backlogEmpresa usuario tarefas
       menuAdministrador usuario usuarios tarefasAtualizado sprints
     "2" -> do
-      (sprintsAtualizada,tarefasAtualizado) <- listarSprintsDaEmpresa usuario sprints usuarios tarefas
-      menuAdministrador usuario  usuarios tarefasAtualizado sprintsAtualizada
+      (sprintsAtualizada, tarefasAtualizado) <- listarSprintsDaEmpresa usuario sprints usuarios tarefas
+      menuAdministrador usuario usuarios tarefasAtualizado sprintsAtualizada
     "3" -> do
       usuarioAtualizado <- modificarUsuario usuario
       let usuariosAtualizados = map (\u -> if usuarioId u == usuarioId usuario then usuarioAtualizado else u) usuarios
       menuAdministrador usuarioAtualizado usuarios tarefas sprints
-    "4" -> putStrLn "Saindo..."
-    _   -> do
+    "4" -> return (usuarios, tarefas, sprints)
+    _ -> do
       putStrLn "Opção inválida, tente novamente."
       menuAdministrador usuario usuarios tarefas sprints
 
 -- Menu para Usuário Comum
-menuComum :: Usuario ->[Usuario] -> [Tarefa] -> [Sprint] -> IO ()
+menuComum :: Usuario -> [Usuario] -> [Tarefa] -> [Sprint] -> IO ([Usuario], [Tarefa], [Sprint])
 menuComum usuario usuarios tarefas sprints = do
   putStrLn "\nMenu Usuário Comum:"
   putStrLn "1. Sprints"
@@ -50,7 +49,7 @@ menuComum usuario usuarios tarefas sprints = do
       usuarioAtualizado <- modificarUsuario usuario
       let usuariosAtualizados = map (\u -> if usuarioId u == usuarioId usuario then usuarioAtualizado else u) usuarios
       menuComum usuarioAtualizado usuariosAtualizados tarefas sprints
-    "4" -> putStrLn "Saindo..."
-    _   -> do
+    "4" -> return (usuarios, tarefas, sprints)
+    _ -> do
       putStrLn "Opção inválida, tente novamente."
       menuComum usuario usuarios tarefas sprints
