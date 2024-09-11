@@ -3,7 +3,7 @@ module Sprint where
 import Data.List (find) -- Importa a função find do módulo Data.List
 import Data.Maybe (fromMaybe)
 import Tarefa (StatusTarefa (..), Tarefa (..))
-import Usuario (Usuario (..))
+import Usuario (Usuario (..),TipoUsuario(..))
 
 data Sprint = Sprint
   { sprintId :: Int,
@@ -71,11 +71,11 @@ listarSprintsDaEmpresa usuario sprints usuarios tarefas = do
       case find (\s -> sprintId s == sprintIdEscolhida) sprintsDaEmpresa of
         Nothing -> putStrLn "Sprint não encontrada." >> listarSprintsDaEmpresa usuario sprints usuarios tarefas
         Just sprint -> do
-          (sprintsAtualizados, tarefasAtualizadas) <- acessarSprint usuario sprint sprints tarefas
+          (sprintsAtualizados, tarefasAtualizadas) <- acessarSprint usuario sprint sprints tarefas usuarios
           listarSprintsDaEmpresa usuario sprintsAtualizados usuarios tarefasAtualizadas
 
-acessarSprint :: Usuario -> Sprint -> [Sprint] -> [Tarefa] -> IO ([Sprint], [Tarefa])
-acessarSprint usuario sprint sprints tarefas = do
+acessarSprint :: Usuario -> Sprint -> [Sprint] -> [Tarefa] ->[Usuario] -> IO ([Sprint], [Tarefa])
+acessarSprint usuario sprint sprints tarefas usuarios = do
   putStrLn $ "Sprint Selecionada: " ++ sprintNome sprint
   putStrLn "Tarefas da Sprint:"
   let tarefasDaSprint = filter (\t -> tarefaId t `elem` sprintTarefas sprint) tarefas
@@ -88,14 +88,14 @@ acessarSprint usuario sprint sprints tarefas = do
   case escolha of
     "1" -> do
       (sprintsAtualizados, tarefasAtualizadas) <- adicionarTarefaASprint usuario sprint sprints tarefas
-      acessarSprint usuario sprint sprintsAtualizados tarefasAtualizadas
+      acessarSprint usuario sprint sprintsAtualizados tarefasAtualizadas usuarios
     "2" -> do
-      tarefasAtualizadas <- atribuirTarefa usuario tarefas
-      acessarSprint usuario sprint sprints tarefasAtualizadas
+      tarefasAtualizadas <- atribuirTarefa usuario tarefas usuarios
+      acessarSprint usuario sprint sprints tarefasAtualizadas usuarios
     "0" -> return (sprints, tarefas)
     _   -> do
       putStrLn "Opção inválida, tente novamente."
-      acessarSprint usuario sprint sprints tarefas
+      acessarSprint usuario sprint sprints tarefas usuarios
 -- Função para adicionar uma tarefa à sprint
 adicionarTarefaASprint :: Usuario -> Sprint -> [Sprint] -> [Tarefa] -> IO ([Sprint], [Tarefa])
 adicionarTarefaASprint usuario sprint sprints tarefas = do
@@ -115,9 +115,8 @@ adicionarTarefaASprint usuario sprint sprints tarefas = do
       putStrLn "Tarefa adicionada à sprint e status atualizado com sucesso!"
       return (sprintsAtualizados, tarefasAtualizadas)
 -- Função para atribuir uma tarefa a um usuário
--- Função para atribuir uma tarefa a um usuário
-atribuirTarefa :: Usuario -> [Tarefa] -> IO [Tarefa]
-atribuirTarefa usuario tarefas = do
+atribuirTarefa :: Usuario -> [Tarefa] -> [Usuario] -> IO [Tarefa]
+atribuirTarefa usuario tarefas usuarios = do
   putStrLn "Digite o ID da tarefa para atribuir a um usuário:"
   tarefaIdEscolhida <- readLn
   let tarefaSelecionada = find (\t -> tarefaId t == tarefaIdEscolhida && tarefaStatus t == Pendente) tarefas
@@ -126,8 +125,15 @@ atribuirTarefa usuario tarefas = do
       putStrLn "Tarefa não encontrada ou não está no status 'Pendente'."
       return tarefas -- Retorna as listas originais, pois a tarefa não foi encontrada
     Just tarefa -> do
-      -- Atualiza a tarefa com o responsável e o status
-      let tarefaAtualizada = tarefa { tarefaIdResponsavel =usuarioId usuario, tarefaStatus = Pendente }
-          tarefasAtualizadas = map (\t -> if tarefaId t == tarefaIdEscolhida then tarefaAtualizada else t) tarefas
-      putStrLn "Tarefa atribuída com sucesso!"
-      return tarefasAtualizadas
+      putStrLn "Digite o ID do usuário para atribuir a tarefa:"
+      usuarioIdEscolhido <- readLn
+      case find (\u -> usuarioId u == usuarioIdEscolhido && usuarioEmpresaId u == tarefaEmpresaId tarefa && usuarioPapel u == DevTeam) usuarios of
+        Nothing -> do
+          putStrLn "Usuário não encontrado, não pertence à empresa ou não é um desenvolvedor."
+          return tarefas -- Retorna as listas originais, pois o usuário não é válido
+        Just usuarioAtribuido -> do
+          -- Atualiza a tarefa com o responsável e o status
+          let tarefaAtualizada = tarefa { tarefaIdResponsavel =  usuarioId usuarioAtribuido, tarefaStatus = Pendente }
+              tarefasAtualizadas = map (\t -> if tarefaId t == tarefaIdEscolhida then tarefaAtualizada else t) tarefas
+          putStrLn "Tarefa atribuída com sucesso!"
+          return tarefasAtualizadas
