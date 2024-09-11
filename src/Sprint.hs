@@ -87,8 +87,8 @@ acessarSprint usuario sprint sprints tarefas usuarios = do
   escolha <- getLine
   case escolha of
     "1" -> do
-      (sprintsAtualizados, tarefasAtualizadas) <- adicionarTarefaASprint usuario sprint sprints tarefas
-      acessarSprint usuario sprint sprintsAtualizados tarefasAtualizadas usuarios
+      (sprintAtualizada, sprintsAtualizados, tarefasAtualizadas) <- adicionarTarefaASprint usuario sprint sprints tarefas
+      acessarSprint usuario sprintAtualizada sprintsAtualizados tarefasAtualizadas usuarios
     "2" -> do
       tarefasAtualizadas <- atribuirTarefa usuario tarefas usuarios
       acessarSprint usuario sprint sprints tarefasAtualizadas usuarios
@@ -97,14 +97,15 @@ acessarSprint usuario sprint sprints tarefas usuarios = do
       putStrLn "Opção inválida, tente novamente."
       acessarSprint usuario sprint sprints tarefas usuarios
 -- Função para adicionar uma tarefa à sprint
-adicionarTarefaASprint :: Usuario -> Sprint -> [Sprint] -> [Tarefa] -> IO ([Sprint], [Tarefa])
+-- Função para adicionar uma tarefa à sprint
+adicionarTarefaASprint :: Usuario -> Sprint -> [Sprint] -> [Tarefa] -> IO (Sprint, [Sprint], [Tarefa])
 adicionarTarefaASprint usuario sprint sprints tarefas = do
   putStrLn "Digite o ID da tarefa para adicionar à sprint:"
   tarefaIdEscolhida <- readLn
   case find (\t -> tarefaId t == tarefaIdEscolhida && tarefaStatus t == Backlog) tarefas of
     Nothing -> do
       putStrLn "Tarefa não encontrada ou não está no status 'Backlog'."
-      return (sprints, tarefas)
+      return (sprint, sprints, tarefas)
     Just tarefa -> do
       let tarefaAtualizada = tarefa { tarefaStatus = Pendente }
           tarefasAtualizadas = map (\t -> if tarefaId t == tarefaIdEscolhida then tarefaAtualizada else t) tarefas
@@ -113,7 +114,7 @@ adicionarTarefaASprint usuario sprint sprints tarefas = do
           sprintsAtualizados = map (\s -> if sprintId s == sprintId sprint then sprintAtualizada else s) sprints
           
       putStrLn "Tarefa adicionada à sprint e status atualizado com sucesso!"
-      return (sprintsAtualizados, tarefasAtualizadas)
+      return (sprintAtualizada, sprintsAtualizados, tarefasAtualizadas)
 -- Função para atribuir uma tarefa a um usuário
 atribuirTarefa :: Usuario -> [Tarefa] -> [Usuario] -> IO [Tarefa]
 atribuirTarefa usuario tarefas usuarios = do
