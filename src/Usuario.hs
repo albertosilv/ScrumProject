@@ -23,7 +23,7 @@ cadastrarUsuario = do
   email <- getLine
   putStrLn "Digite a senha do Usuário:"
   senha <- getLine
-  putStrLn "Selecione o tipo de usuário (1 para Product Owner, 2 para Scrum Master, 3 para Dev Team, 4 para Stakeholder):"
+  putStrLn "Selecione o tipo de usuário (1 para Product Owner, 2 para Scrum Master, 3 para Dev Team):"
   tipo <- getLine
   let papel = case tipo of
         "1" -> ProductOwner

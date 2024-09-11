@@ -20,7 +20,7 @@ menuAdministrador usuario usuarios tarefas sprints = do
       menuAdministrador usuario usuarios tarefasAtualizado sprints
     "2" -> do
       (sprintsAtualizada,tarefasAtualizado) <- listarSprintsDaEmpresa usuario sprints usuarios tarefas
-      menuAdministrador usuario  usuarios tarefas sprints
+      menuAdministrador usuario  usuarios tarefasAtualizado sprintsAtualizada
     "3" -> do
       usuarioAtualizado <- modificarUsuario usuario
       let usuariosAtualizados = map (\u -> if usuarioId u == usuarioId usuario then usuarioAtualizado else u) usuarios
