@@ -81,10 +81,9 @@ listarTarefasUsuario usuario tarefas = do
               putStrLn "Tarefa não encontrada."
               listarTarefasUsuario usuario tarefas -- Chama a função novamente
             else do
-              putStrLn "Digite o novo status da tarefa (1 para Backlog, 2 para Pendente, 3 para EmDesenvolvimento, 4 para Concluido):"
+              putStrLn "Digite o novo status da tarefa (2 para Pendente, 3 para EmDesenvolvimento, 4 para Concluido):"
               novoStatusEntrada <- getLine
               let novoStatus = case novoStatusEntrada of
-                    "1" -> Backlog
                     "2" -> Pendente
                     "3" -> EmDesenvolvimento
                     "4" -> Concluido

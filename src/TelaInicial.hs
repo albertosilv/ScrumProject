@@ -43,8 +43,8 @@ menuComum usuario usuarios tarefas sprints = do
       listarSprint usuario sprints tarefas
       menuComum usuario usuarios tarefas sprints
     "2" -> do
-      listarTarefasUsuario usuario tarefas
-      menuComum usuario usuarios tarefas sprints
+      tarefasAtualizadas <- listarTarefasUsuario usuario tarefas
+      menuComum usuario usuarios tarefasAtualizadas sprints
     "3" -> do
       usuarioAtualizado <- modificarUsuario usuario
       let usuariosAtualizados = map (\u -> if usuarioId u == usuarioId usuario then usuarioAtualizado else u) usuarios
