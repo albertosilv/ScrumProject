@@ -6,7 +6,7 @@ papel_string(1, 'Product Owner').
 papel_string(2, 'Scrum Master').
 papel_string(3, 'Dev Team').
 
-% Funcao para cadastrar um usuario
+
 cadastrar_usuario :- 
   writeln('Digite o ID do Usuario:'),
   read_line_to_string(user_input, IdStr),
@@ -28,7 +28,6 @@ cadastrar_usuario :-
   writeln('Usuario cadastrado: '),
   writeln(usuario(Id, Nome, Email)).
 
-% Funcao para fazer login de um usuario
 login(Usuario, PapelNum) :-
   writeln('Digite o Email do Usuario:'),
   read_line_to_string(user_input, Email),
@@ -41,7 +40,7 @@ login(Usuario, PapelNum) :-
   writeln('Digite a Senha:'),
   read_line_to_string(user_input, SenhaInput),
   (   SenhaInput == Senha ->
-    format('Bem-vindo, ~w!~n', [Nome]),
+    format('\nBem-vindo, ~w!~n', [Nome]),
     Usuario = usuario(Id, Nome, Email, Senha, PapelNum, EmpresaId)
   ;   writeln('Senha incorreta.'),
     Usuario = none,
@@ -49,7 +48,7 @@ login(Usuario, PapelNum) :-
   )
   ).
 
-% Funcao para modificar os dados de um usuario
+
 modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModificado) :-
   writeln('\nDados do Usuario:'),
   format('1. Nome: ~w~n', [Nome]),
@@ -77,11 +76,11 @@ modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModi
    modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModificado)
   ).
 
-% Funcao para obter o ID da empresa de um usuario
+
 usuario_empresa_id(Usuario, EmpresaId) :- 
   usuario(Usuario, _, _, _, _, EmpresaId).
 
-% Funcao para verificar o papel de um usuario
+
 usuario_papel(Usuario, Papel) :- 
   usuario(Usuario, _, _, _, PapelNum, _),  
   format('Usuario: ~w, Papel numerico: ~w~n', [Usuario, PapelNum]),

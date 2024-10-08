@@ -4,7 +4,6 @@
 :- use_module(tarefa).
 :- use_module(usuario).
 
-% Menu para usuarios administradores
 menu_administrador(Usuario) :-
   writeln('\nMenu Administrador:'),
   writeln('1. Backlog'),
@@ -29,7 +28,6 @@ menu_administrador(Usuario) :-
     menu_administrador(Usuario)
   ).
 
-% Menu para usuarios comuns
 menu_comum(Usuario) :-
   writeln('\nMenu Usuario Comum:'),
   writeln('1. Sprints'),
@@ -55,13 +53,13 @@ menu_comum(Usuario) :-
     menu_comum(Usuario)  % Repete o menu em caso de erro
   ).
 
-% Atualiza os dados do usuario
+
 update_usuario(Usuario, UsuarioAtualizado) :-
   findall(U, usuario(U), Usuarios),  % Obtem a lista de todos os usuarios
   maplist(replace_usuario(Usuario, UsuarioAtualizado), Usuarios, UsuariosAtualizados),
   retractall(usuario(_)),  % Remove todos os usuarios antigos
   maplist(assertz, UsuariosAtualizados).  % Adiciona a lista atualizada de usuarios
 
-% Predicado auxiliar para substituir um usuario
-replace_usuario(Usuario, UsuarioAtualizado, Usuario, UsuarioAtualizado) :- !.  % Substitui o usuario
-replace_usuario(_, _, U, U).  % Mantem os outros usuarios
+
+replace_usuario(Usuario, UsuarioAtualizado, Usuario, UsuarioAtualizado) :- !.  
+replace_usuario(_, _, U, U). 
