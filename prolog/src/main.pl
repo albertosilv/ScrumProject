@@ -2,29 +2,29 @@
 :- use_module(usuario).
 :- use_module(tela_inicial).
 
-
 % Menu principal
 menu_principal(UsuarioLogado) :-
-    (   UsuarioLogado = none ->
-        writeln('\nMenu Principal:'),
-        writeln('1. Cadastrar Usuário'),
-        writeln('2. Login'),
-        writeln('3. Sair'),
-        writeln('Escolha uma opção: '),
-        read_line_to_string(user_input, OpcaoStr),
-        processar_opcao(OpcaoStr, none)  % Passa none para processar_opcao
-    ;   % Se o usuário está logado
-        (   usuario_papel(UsuarioLogado, 1) ->
-            menu_administrador(UsuarioLogado)  % Acesso ao menu de administrador
-        ;   usuario_papel(UsuarioLogado, 2) ->
-            menu_administrador(UsuarioLogado)  % Acesso ao menu de administrador
-        ;   menu_comum(UsuarioLogado)  % Acesso ao menu comum
+    (   UsuarioLogado = none -> 
+        writeln('\nMenu Principal:'), 
+        writeln('1. Cadastrar Usuário'), 
+        writeln('2. Login'), 
+        writeln('3. Sair'), 
+        writeln('Escolha uma opção:'), 
+        read_line_to_string(user_input, OpcaoStr), 
+        processar_opcao(OpcaoStr, none)
+    ;   ( usuario_papel(UsuarioLogado, Papel),writeln('Papel encontrado: ~w', [Papel]),  % Mostra o papel encontrado
+            (   (Papel = 1 ; Papel = 2),  % 1 para Product Owner ou 2 para Scrum Master
+                menu_administrador(UsuarioLogado)
+            ;   menu_comum(UsuarioLogado)
+            )
+        ;   
+            menu_principal(UsuarioLogado)
         ),
         writeln('Você deseja sair? (s/n)'),
         read_line_to_string(user_input, Resposta),
         (   Resposta = "s" -> 
-            menu_principal(none)  % Retorna ao menu principal com UsuarioLogado como none
-        ;   menu_principal(UsuarioLogado)  % Retorna ao menu principal com UsuarioLogado ainda ativo
+            menu_principal(none)
+        ;   menu_principal(UsuarioLogado)
         )
     ).
 
@@ -49,5 +49,6 @@ processar_opcao("3", _) :-
 processar_opcao(_, UsuarioLogado) :- 
     writeln('Opção inválida, tente novamente.'),
     menu_principal(UsuarioLogado).
+
 % Início do programa
 :- initialization(menu_principal(none)).

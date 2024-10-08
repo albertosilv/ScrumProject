@@ -2,10 +2,10 @@
 
 :- dynamic usuario/6.
 
-% Definições de tipos de usuário
-tipo_usuario(1, product_owner).   % 1 para Product Owner
-tipo_usuario(2, scrum_master).     % 2 para Scrum Master
-tipo_usuario(3, dev_team).         % 3 para Dev Team
+
+papel_string(1, 'Product Owner').
+papel_string(2, 'Scrum Master').
+papel_string(3, 'Dev Team').
 
 % Função para cadastrar um usuário
 cadastrar_usuario :- 
@@ -80,6 +80,8 @@ modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModi
 usuario_empresa_id(Usuario, EmpresaId) :- 
     usuario(Usuario, _, _, _, _, EmpresaId).
 
-% Define o papel de um usuário
+% Função para verificar o papel de um usuário
 usuario_papel(Usuario, Papel) :- 
-    usuario(Usuario, _, _, _, Papel, _).
+    usuario(Usuario, _, _, _, PapelNum, _),  
+    format('Usuário: ~w, Papel numérico: ~w~n', [Usuario, PapelNum]),
+    Papel = PapelNum.
