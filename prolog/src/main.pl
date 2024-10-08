@@ -12,32 +12,23 @@ menu_principal(UsuarioLogado) :-
         writeln('Escolha uma opção:'), 
         read_line_to_string(user_input, OpcaoStr), 
         processar_opcao(OpcaoStr, none)
-    ;   ( usuario_papel(UsuarioLogado, Papel),writeln('Papel encontrado: ~w', [Papel]),  % Mostra o papel encontrado
-            (   (Papel = 1 ; Papel = 2),  % 1 para Product Owner ou 2 para Scrum Master
-                menu_administrador(UsuarioLogado)
-            ;   menu_comum(UsuarioLogado)
-            )
-        ;   
-            menu_principal(UsuarioLogado)
-        ),
-        writeln('Você deseja sair? (s/n)'),
-        read_line_to_string(user_input, Resposta),
-        (   Resposta = "s" -> 
-            menu_principal(none)
-        ;   menu_principal(UsuarioLogado)
-        )
     ).
 
 % Processa as opções do menu principal
 processar_opcao("1", _) :- 
     cadastrar_usuario(), 
-    menu_principal(none).
+    menu_principal(none). 
 
 processar_opcao("2", _) :- 
-    login(NovoUsuarioLogado),
+    login(NovoUsuarioLogado, PapelNum),
     (   NovoUsuarioLogado \= none -> 
-        format('Logado como: ~w~n', [NovoUsuarioLogado]),
-        menu_principal(NovoUsuarioLogado)
+        (   PapelNum = 1 -> 
+            menu_administrador(NovoUsuarioLogado),
+            menu_principal(none)
+        ;
+            menu_comum(NovoUsuarioLogado),
+            menu_principal(none) 
+        )
     ;   writeln('Login falhou. Tente novamente.'),
         menu_principal(none)
     ).

@@ -48,8 +48,8 @@ menu_comum(Usuario) :-
         modificar_usuario(Usuario, UsuarioAtualizado),
         menu_comum(UsuarioAtualizado)
     ;   Escolha = 4 -> 
-        writeln('Saindo do menu...'),  % Mensagem opcional
-        true  % Sai do menu sem repetir
+        writeln('Saindo...'), 
+        true  
     ;   
         writeln('Opção inválida, tente novamente.'),
         menu_comum(Usuario)  % Repete o menu em caso de erro

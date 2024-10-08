@@ -1,4 +1,4 @@
-:- module(usuario, [usuario/6, usuario_papel/2, cadastrar_usuario/0, login/1, modificar_usuario/2, usuario_empresa_id/2]).
+:- module(usuario, [usuario/6, usuario_papel/2, cadastrar_usuario/0, login/2, modificar_usuario/2, usuario_empresa_id/2]).
 
 :- dynamic usuario/6.
 
@@ -27,26 +27,28 @@ cadastrar_usuario :-
     atom_string(EmpresaId, EmpresaIdStr),
     assert(usuario(Id, Nome, Email, Senha, Papel, EmpresaId)),
     writeln('Usuário cadastrado: '),
-    writeln(usuario(Id, Nome, Email, Senha, Papel, EmpresaId)).
+    writeln(usuario(Id, Nome, Email)).
 
 % Função para fazer login de um usuário
-login(Usuario) :-
-    writeln('Digite o Email do Usuário:'),
-    read_line_to_string(user_input, Email),
-    findall(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), usuario(Id, Nome, Email, Senha, Papel, EmpresaId), Usuarios),
-    (   Usuarios = [] ->
-        writeln('Usuário não encontrado.'),
-        Usuario = none
-    ;   Usuarios = [usuario(Id, Nome, Email, Senha, Papel, EmpresaId)] ->
-        writeln('Digite a Senha:'),
-        read_line_to_string(user_input, SenhaInput),
-        (   SenhaInput == Senha ->
-            writeln('Login bem-sucedido! Bem-vindo, '), writeln(Nome),
-            Usuario = usuario(Id, Nome, Email, Senha, Papel, EmpresaId)
-        ;   writeln('Senha incorreta.'),
-            Usuario = none
-        )
-    ).
+login(Usuario, PapelNum) :-
+  writeln('Digite o Email do Usuário:'),
+  read_line_to_string(user_input, Email),
+  findall(usuario(Id, Nome, Email, Senha, PapelNum, EmpresaId), usuario(Id, Nome, Email, Senha, PapelNum, EmpresaId), Usuarios),
+  (   Usuarios = [] ->
+    writeln('Usuário não encontrado.'),
+    Usuario = none,
+    PapelNum = 0
+  ;   Usuarios = [usuario(Id, Nome, Email, Senha, PapelNum, EmpresaId)] ->
+    writeln('Digite a Senha:'),
+    read_line_to_string(user_input, SenhaInput),
+    (   SenhaInput == Senha ->
+      format('Bem-vindo, ~w!~n', [Nome]),
+      Usuario = usuario(Id, Nome, Email, Senha, PapelNum, EmpresaId)
+    ;   writeln('Senha incorreta.'),
+      Usuario = none,
+      PapelNum = 0
+    )
+  ).
 
 % Função para modificar os dados de um usuário
 modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModificado) :-
