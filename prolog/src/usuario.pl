@@ -1,10 +1,11 @@
-:- module(usuario, [usuario/6,usuario_papel/2, cadastrar_usuario/0, login/1, modificar_usuario/2, usuario_empresa_id/2, usuario_id/2]).
+:- module(usuario, [usuario/6, usuario_papel/2, cadastrar_usuario/0, login/1, modificar_usuario/2, usuario_empresa_id/2]).
 
 :- dynamic usuario/6.
 
-tipo_usuario(product_owner).
-tipo_usuario(scrum_master).
-tipo_usuario(dev_team).
+% Definições de tipos de usuário
+tipo_usuario(1, product_owner).   % 1 para Product Owner
+tipo_usuario(2, scrum_master).     % 2 para Scrum Master
+tipo_usuario(3, dev_team).         % 3 para Dev Team
 
 % Função para cadastrar um usuário
 cadastrar_usuario :- 
@@ -19,11 +20,8 @@ cadastrar_usuario :-
     read_line_to_string(user_input, Senha),
     writeln('Selecione o tipo de usuário (1 para Product Owner, 2 para Scrum Master, 3 para Dev Team):'),
     read_line_to_string(user_input, TipoStr),
-    atom_number(TipoStr, Tipo),
-    (Tipo = 1 -> Papel = product_owner;
-     Tipo = 2 -> Papel = scrum_master;
-     Tipo = 3 -> Papel = dev_team;
-     Papel = dev_team),  % Padrão para Dev Team se entrada inválida
+    atom_number(TipoStr, Papel),  % Papel agora é numérico
+    (Papel >= 1, Papel =< 3 -> true; Papel = 3),  % Padrão para Dev Team se entrada inválida
     writeln('Digite o ID da Empresa:'),
     read_line_to_string(user_input, EmpresaIdStr),
     atom_string(EmpresaId, EmpresaIdStr),
@@ -38,7 +36,7 @@ login(Usuario) :-
     findall(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), usuario(Id, Nome, Email, Senha, Papel, EmpresaId), Usuarios),
     (   Usuarios = [] ->
         writeln('Usuário não encontrado.'),
-        Usuario = null
+        Usuario = none
     ;   Usuarios = [usuario(Id, Nome, Email, Senha, Papel, EmpresaId)] ->
         writeln('Digite a Senha:'),
         read_line_to_string(user_input, SenhaInput),
@@ -46,7 +44,7 @@ login(Usuario) :-
             writeln('Login bem-sucedido! Bem-vindo, '), writeln(Nome),
             Usuario = usuario(Id, Nome, Email, Senha, Papel, EmpresaId)
         ;   writeln('Senha incorreta.'),
-            Usuario = null
+            Usuario = none
         )
     ).
 
@@ -81,10 +79,6 @@ modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModi
 % Função para obter o ID da empresa de um usuário
 usuario_empresa_id(Usuario, EmpresaId) :- 
     usuario(Usuario, _, _, _, _, EmpresaId).
-
-% Função para obter o ID do criador de um usuário
-usuario_id(Usuario, CriadorId) :- 
-    usuario(Usuario, CriadorId, _, _, _).
 
 % Define o papel de um usuário
 usuario_papel(Usuario, Papel) :- 

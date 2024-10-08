@@ -105,13 +105,12 @@ atribuir_tarefa(Usuario) :-
     usuario_empresa_id(Usuario, EmpresaId),  % Obtendo o EmpresaId do usuário
 
     (   tarefa(TarefaId, Titulo, Descricao, Prioridade, backlog, CriadorId, _, EmpresaId) ->  % Verifica se a tarefa existe e tem status 'backlog'
-        tipo_usuario(Usuario, dev_team),  % Verifica se o usuário que está atribuindo a tarefa é do tipo 'dev_team'
         write('Digite o ID do usuário para atribuir a tarefa:'), nl,
         read_line_to_string(user_input, UsuarioIdStr),
         atom_number(UsuarioIdStr, UsuarioId),  % Converte a string para número
 
         % Verifica se o UsuarioId é do tipo dev_team
-        tipo_usuario(UsuarioId, dev_team),
+        tipo_usuario(UsuarioId, 3),
         
         % Atualiza a tarefa para que o responsável seja o UsuarioId
         retract(tarefa(TarefaId, Titulo, Descricao, Prioridade, backlog, CriadorId, _, EmpresaId)),

@@ -11,7 +11,8 @@ menu_administrador(Usuario) :-
     writeln('2. Sprint'),
     writeln('3. Dados do Usuário'),
     writeln('4. Logout'),
-    read(Escolha),
+    read_line_to_string(user_input, EscolhaString),
+    atom_number(EscolhaString, Escolha),  % Converte a string para número
     (   Escolha = 1 -> 
         listar_tarefas_backlog(Usuario),
         menu_administrador(Usuario)
@@ -22,7 +23,7 @@ menu_administrador(Usuario) :-
         modificar_usuario(Usuario, UsuarioAtualizado),
         menu_administrador(UsuarioAtualizado)
     ;   Escolha = 4 -> 
-        true
+        null
     ;   
         writeln('Opção inválida, tente novamente.'),
         menu_administrador(Usuario)
@@ -35,7 +36,8 @@ menu_comum(Usuario) :-
     writeln('2. Tarefas'),
     writeln('3. Dados do Usuário'),
     writeln('4. Logout'),
-    read(Escolha),
+    read_line_to_string(user_input, EscolhaString),
+    atom_number(EscolhaString, Escolha),  % Converte a string para número
     (   Escolha = 1 -> 
         listar_sprints_da_empresa(Usuario),
         menu_comum(Usuario)
@@ -46,10 +48,11 @@ menu_comum(Usuario) :-
         modificar_usuario(Usuario, UsuarioAtualizado),
         menu_comum(UsuarioAtualizado)
     ;   Escolha = 4 -> 
-        true
+        writeln('Saindo do menu...'),  % Mensagem opcional
+        true  % Sai do menu sem repetir
     ;   
         writeln('Opção inválida, tente novamente.'),
-        menu_comum(Usuario)
+        menu_comum(Usuario)  % Repete o menu em caso de erro
     ).
 
 % Atualiza os dados do usuário
