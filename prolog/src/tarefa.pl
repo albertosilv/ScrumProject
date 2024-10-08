@@ -11,7 +11,6 @@ status_tarefa(concluido).
 % Estrutura da tarefa
 :- dynamic tarefa/7.
 
-
 % Função para listar as tarefas com status de 'backlog' para uma empresa específica
 listar_tarefas_backlog(Usuario) :- 
     usuario_empresa_id(Usuario, EmpresaId),  % Obtém o ID da empresa do usuário
@@ -24,7 +23,8 @@ listar_tarefas_backlog(Usuario) :-
         writeln('\nOpções:'),
         writeln('1. Criar nova tarefa'),
         writeln('2. Voltar ao menu anterior'),
-        read(Opcao),
+        read_line_to_string(user_input, OpcaoStr),
+        atom_number(OpcaoStr, Opcao),
         processar_opcao(Opcao, Usuario)
     ).
 
@@ -47,13 +47,15 @@ processar_opcao(_, Usuario) :-
 % Função para adicionar uma nova tarefa
 adicionar_tarefa(Usuario) :- 
     writeln('Digite o ID da Tarefa:'),
-    read(Id),
+    read_line_to_string(user_input, IdStr),
+    atom_string(Id, IdStr),
     writeln('Digite o Título da Tarefa:'),
-    read(Titulo),
+    read_line_to_string(user_input, Titulo),
     writeln('Digite a Descrição da Tarefa:'),
-    read(Descricao),
+    read_line_to_string(user_input, Descricao),
     writeln('Digite a Prioridade da Tarefa (1-5):'),
-    read(Prioridade),
+    read_line_to_string(user_input, PrioridadeStr),
+    atom_number(PrioridadeStr, Prioridade),
     % Obtendo IDs da empresa e criador
     usuario_empresa_id(Usuario, EmpresaId),
     usuario_id(Usuario, CriadorId),
@@ -69,7 +71,6 @@ tarefa_de_usuario(Usuario, tarefa(_, _, _, _, _, CriadorId, _, _)) :-
 tarefa_de_usuario(Usuario, tarefa(_, _, _, _, _, _, ResponsavelId, _)) :- 
     usuario_id(Usuario, ResponsavelId).
 
-
 % Função para listar as tarefas do usuário
 listar_tarefas_usuario(Usuario) :- 
     findall(tarefa(Id, Titulo, Descricao, Prioridade, Status, CriadorId, ResponsavelId), 
@@ -81,7 +82,8 @@ listar_tarefas_usuario(Usuario) :-
     ;   write('Tarefas do usuário:'), nl,
         maplist(imprimir_tarefa, TarefasUsuario),  % Imprime as tarefas do usuário
         write('Digite o ID da tarefa que deseja modificar o status ou 0 para sair:'), nl,
-        read(TarefaIdEscolhida),
+        read_line_to_string(user_input, TarefaIdEscolhidaStr),
+        atom_number(TarefaIdEscolhidaStr, TarefaIdEscolhida),
         (   TarefaIdEscolhida = 0
         ->  nl  % Apenas nova linha para melhor formatação
         ;   modificar_status(TarefaIdEscolhida)  % Chama a função para modificar o status
@@ -97,7 +99,8 @@ imprimir_tarefa(tarefa(Id, Titulo, Descricao, Prioridade, Status, CriadorId, Res
 modificar_status(TarefaId) :- 
     retract(tarefa(TarefaId, Titulo, Descricao, Prioridade, _, CriadorId, ResponsavelId, EmpresaId)),  % Remove a tarefa antiga
     writeln('Digite o novo status para a tarefa (backlog, pendente, em_desenvolvimento, concluido):'),
-    read(NovoStatus),
+    read_line_to_string(user_input, NovoStatusStr),
+    atom_string(NovoStatus, NovoStatusStr),
     (   status_tarefa(NovoStatus) ->  % Verifica se o novo status é válido
         assertz(tarefa(TarefaId, Titulo, Descricao, Prioridade, NovoStatus, CriadorId, ResponsavelId, EmpresaId)),  % Adiciona a tarefa com novo status
         writeln('Status da tarefa modificado com sucesso.')

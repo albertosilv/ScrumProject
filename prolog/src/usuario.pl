@@ -1,4 +1,4 @@
-:- module(usuario, [usuario/6, cadastrar_usuario/0, login/1, modificar_usuario/2]).
+:- module(usuario, [usuario/6,usuario_papel/2, cadastrar_usuario/0, login/1, modificar_usuario/2, usuario_empresa_id/2, usuario_id/2]).
 
 :- dynamic usuario/6.
 
@@ -8,68 +8,73 @@ tipo_usuario(dev_team).
 
 % Função para cadastrar um usuário
 cadastrar_usuario :- 
-    write('Digite o ID do Usuário:'), nl,
-    read(Id),
-    write('Digite o Nome do Usuário:'), nl,
-    read(Nome),
-    write('Digite o Email do Usuário:'), nl,
-    read(Email),
-    write('Digite a senha do Usuário:'), nl,
-    read(Senha),
-    write('Selecione o tipo de usuário (1 para Product Owner, 2 para Scrum Master, 3 para Dev Team):'), nl,
-    read(Tipo),
+    writeln('Digite o ID do Usuário:'),
+    read_line_to_string(user_input, IdStr),
+    atom_string(Id, IdStr),
+    writeln('Digite o Nome do Usuário:'),
+    read_line_to_string(user_input, Nome),
+    writeln('Digite o Email do Usuário:'),
+    read_line_to_string(user_input, Email),
+    writeln('Digite a senha do Usuário:'),
+    read_line_to_string(user_input, Senha),
+    writeln('Selecione o tipo de usuário (1 para Product Owner, 2 para Scrum Master, 3 para Dev Team):'),
+    read_line_to_string(user_input, TipoStr),
+    atom_number(TipoStr, Tipo),
     (Tipo = 1 -> Papel = product_owner;
      Tipo = 2 -> Papel = scrum_master;
      Tipo = 3 -> Papel = dev_team;
      Papel = dev_team),  % Padrão para Dev Team se entrada inválida
-    write('Digite o ID da Empresa:'), nl,
-    read(EmpresaId),
+    writeln('Digite o ID da Empresa:'),
+    read_line_to_string(user_input, EmpresaIdStr),
+    atom_string(EmpresaId, EmpresaIdStr),
     assert(usuario(Id, Nome, Email, Senha, Papel, EmpresaId)),
-    write('Usuário cadastrado: '), write(usuario(Id, Nome, Email, Senha, Papel, EmpresaId)), nl.
+    writeln('Usuário cadastrado: '),
+    writeln(usuario(Id, Nome, Email, Senha, Papel, EmpresaId)).
 
 % Função para fazer login de um usuário
 login(Usuario) :-
-    write('Digite o Email do Usuário:'), nl,
-    read(Email),
+    writeln('Digite o Email do Usuário:'),
+    read_line_to_string(user_input, Email),
     findall(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), usuario(Id, Nome, Email, Senha, Papel, EmpresaId), Usuarios),
     (   Usuarios = [] ->
-        write('Usuário não encontrado.'), nl,
+        writeln('Usuário não encontrado.'),
         Usuario = null
     ;   Usuarios = [usuario(Id, Nome, Email, Senha, Papel, EmpresaId)] ->
-        write('Digite a Senha:'), nl,
-        read(SenhaInput),
+        writeln('Digite a Senha:'),
+        read_line_to_string(user_input, SenhaInput),
         (   SenhaInput == Senha ->
-            write('Login bem-sucedido! Bem-vindo, '), write(Nome), nl,
+            writeln('Login bem-sucedido! Bem-vindo, '), writeln(Nome),
             Usuario = usuario(Id, Nome, Email, Senha, Papel, EmpresaId)
-        ;   write('Senha incorreta.'), nl,
+        ;   writeln('Senha incorreta.'),
             Usuario = null
         )
     ).
 
 % Função para modificar os dados de um usuário
 modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModificado) :-
-    write('\nDados do Usuário:'), nl,
-    write('1. Nome: '), write(Nome), nl,
-    write('2. Email: '), write(Email), nl,
-    write('3. Senha: '), write(Senha), nl,
-    write('4. ID da Empresa (Não pode ser modificado): '), write(EmpresaId), nl,
-    write('Escolha o número do campo que deseja modificar (ou 0 para sair):'), nl,
-    read(Escolha),
+    writeln('\nDados do Usuário:'),
+    format('1. Nome: ~w~n', [Nome]),
+    format('2. Email: ~w~n', [Email]),
+    format('3. Senha: ~w~n', [Senha]),
+    format('4. ID da Empresa (Não pode ser modificado): ~w~n', [EmpresaId]),
+    writeln('Escolha o número do campo que deseja modificar (ou 0 para sair):'),
+    read_line_to_string(user_input, EscolhaStr),
+    atom_number(EscolhaStr, Escolha),
     (Escolha = 1 ->
-        write('Digite o novo nome:'), nl,
-        read(NovoNome),
+        writeln('Digite o novo nome:'),
+        read_line_to_string(user_input, NovoNome),
         UsuarioModificado = usuario(Id, NovoNome, Email, Senha, Papel, EmpresaId);
      Escolha = 2 ->
-        write('Digite o novo email:'), nl,
-        read(NovoEmail),
+        writeln('Digite o novo email:'),
+        read_line_to_string(user_input, NovoEmail),
         UsuarioModificado = usuario(Id, Nome, NovoEmail, Senha, Papel, EmpresaId);
      Escolha = 3 ->
-        write('Digite a nova senha:'), nl,
-        read(NovaSenha),
+        writeln('Digite a nova senha:'),
+        read_line_to_string(user_input, NovaSenha),
         UsuarioModificado = usuario(Id, Nome, Email, NovaSenha, Papel, EmpresaId);
      Escolha = 0 ->
         UsuarioModificado = usuario(Id, Nome, Email, Senha, Papel, EmpresaId);
-     write('Opção inválida, tente novamente.'), nl,
+     writeln('Opção inválida, tente novamente.'),
      modificar_usuario(usuario(Id, Nome, Email, Senha, Papel, EmpresaId), UsuarioModificado)
     ).
 
@@ -80,3 +85,7 @@ usuario_empresa_id(Usuario, EmpresaId) :-
 % Função para obter o ID do criador de um usuário
 usuario_id(Usuario, CriadorId) :- 
     usuario(Usuario, CriadorId, _, _, _).
+
+% Define o papel de um usuário
+usuario_papel(Usuario, Papel) :- 
+    usuario(Usuario, _, _, _, Papel, _).

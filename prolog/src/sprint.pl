@@ -8,11 +8,13 @@
 % Função para criar uma nova sprint
 criar_sprint(Usuario) :-
     write('Digite o ID da Sprint:'), nl,
-    read(Id),
+    read_line_to_string(user_input, IdStr),
+    atom_number(IdStr, Id),  % Converte a string para número
     write('Digite o Nome da Sprint:'), nl,
-    read(Nome),
+    read_line_to_string(user_input, Nome),
     write('Digite a Duração da Sprint (em dias):'), nl,
-    read(Duracao),
+    read_line_to_string(user_input, DuracaoStr),
+    atom_number(DuracaoStr, Duracao),  % Converte a string para número
     usuario:usuario_empresa_id(Usuario, EmpresaId),
     assertz(sprint(Id, Nome, Duracao, [], usuario_id(Usuario), EmpresaId)),
     format('Sprint criada: ~w~n', [Id]).
@@ -26,7 +28,8 @@ listar_sprints_da_empresa(Usuario) :-
     ;   write('Sprints da Empresa:'), nl,
         maplist(print_sprint, SprintsDaEmpresa),
         write('Digite o ID da sprint para visualizar suas tarefas (ou -1 para voltar, 0 para criar uma nova sprint):'), nl,
-        read(Entrada),
+        read_line_to_string(user_input, EntradaStr),
+        atom_number(EntradaStr, Entrada),  % Converte a string para número
         processar_entrada(Entrada, Usuario)  % Processa a entrada do usuário
     ).
 
@@ -61,7 +64,8 @@ acessar_sprint(Usuario, Sprint) :-
     write('1. Adicionar Tarefa à Sprint'), nl,
     write('2. Atribuir Tarefa a um Usuário'), nl,
     write('0. Voltar'), nl,
-    read(Escolha),
+    read_line_to_string(user_input, EscolhaStr),
+    atom_number(EscolhaStr, Escolha),  % Converte a string para número
     
     (   Escolha = 1 -> 
         adicionar_tarefa_a_sprint(Sprint),  % Adiciona tarefa à sprint
@@ -84,7 +88,8 @@ print_tarefa(TarefaId) :-
 % Função para adicionar uma nova tarefa à sprint
 adicionar_tarefa_a_sprint(Sprint) :- 
     write('Digite o ID da tarefa a ser adicionada à sprint:'), nl,
-    read(TarefaId),
+    read_line_to_string(user_input, TarefaIdStr),
+    atom_number(TarefaIdStr, TarefaId),  % Converte a string para número
     (   tarefa(TarefaId, _, _, _, backlog, CriadorId, _, EmpresaId) ->  % Verifica se a tarefa existe e está no status 'backlog'
         retract(sprint(Sprint, Nome, Duracao, Tarefas, CriadorId, EmpresaId)),
         assertz(sprint(Sprint, Nome, Duracao, [TarefaId | Tarefas], CriadorId, EmpresaId)),
@@ -95,13 +100,15 @@ adicionar_tarefa_a_sprint(Sprint) :-
 % Função para atribuir tarefa a um usuário
 atribuir_tarefa(Usuario) :- 
     write('Digite o ID da tarefa que deseja atribuir:'), nl,
-    read(TarefaId),
+    read_line_to_string(user_input, TarefaIdStr),
+    atom_number(TarefaIdStr, TarefaId),  % Converte a string para número
     usuario_empresa_id(Usuario, EmpresaId),  % Obtendo o EmpresaId do usuário
 
     (   tarefa(TarefaId, Titulo, Descricao, Prioridade, backlog, CriadorId, _, EmpresaId) ->  % Verifica se a tarefa existe e tem status 'backlog'
         tipo_usuario(Usuario, dev_team),  % Verifica se o usuário que está atribuindo a tarefa é do tipo 'dev_team'
         write('Digite o ID do usuário para atribuir a tarefa:'), nl,
-        read(UsuarioId),
+        read_line_to_string(user_input, UsuarioIdStr),
+        atom_number(UsuarioIdStr, UsuarioId),  % Converte a string para número
 
         % Verifica se o UsuarioId é do tipo dev_team
         tipo_usuario(UsuarioId, dev_team),

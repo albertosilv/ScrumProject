@@ -1,45 +1,66 @@
-:- module(main, [main/0]).
+:- module(tela_inicial, [menu_administrador/1, menu_comum/1]).
 
-:- use_module(usuario).
-:- use_module(tarefa).
 :- use_module(sprint).
-:- use_module(tela_inicial).
+:- use_module(tarefa).
+:- use_module(usuario).
 
-% Menu principal
-menu_principal(UsuarioLogado) :-
-    (   UsuarioLogado = none ->
-        writeln('\nMenu Principal:'),
-        writeln('1. Cadastrar Usuário'),
-        writeln('2. Login'),
-        writeln('3. Sair'),
-        writeln('Escolha uma opção: '),
-        read(Escolha),
-        (   Escolha = 1 -> 
-            cadastrar_usuario(),
-            menu_principal(none)
-        ;   Escolha = 2 -> 
-            login(UsuarioLogado),
-            (   UsuarioLogado \= none -> 
-                format('Logado como: ~w~n', [UsuarioLogado]),
-                menu_principal(UsuarioLogado)  % Passa apenas o usuário logado
-            ;   writeln('Login falhou. Tente novamente.'),
-                menu_principal(none)
-            )
-        ;   Escolha = 3 -> 
-            writeln('Saindo...')
-        ;   
-            writeln('Opção inválida, tente novamente.'),
-            menu_principal(none)
-        )
-    ;   % Se o usuário está logado
-        (   usuario_papel(UsuarioLogado, product_owner) ; usuario_papel(UsuarioLogado, scrum_master) ->
-            menu_administrador(UsuarioLogado)
-        ;   menu_comum(UsuarioLogado)
-        ),
-        menu_principal(UsuarioLogado)  % Retorna ao menu principal
+% Menu para usuários administradores
+menu_administrador(Usuario) :-
+    writeln('\nMenu Administrador:'),
+    writeln('1. Backlog'),
+    writeln('2. Sprint'),
+    writeln('3. Dados do Usuário'),
+    writeln('4. Logout'),
+    read_line_to_string(user_input, EscolhaString),
+    atom_number(EscolhaString, Escolha),  % Converte a string para número
+    (   Escolha = 1 -> 
+        listar_tarefas_backlog(Usuario),
+        menu_administrador(Usuario)
+    ;   Escolha = 2 -> 
+        listar_sprints_da_empresa(Usuario),
+        menu_administrador(Usuario)
+    ;   Escolha = 3 -> 
+        modificar_usuario(Usuario, UsuarioAtualizado),
+        menu_administrador(UsuarioAtualizado)
+    ;   Escolha = 4 -> 
+        true
+    ;   
+        writeln('Opção inválida, tente novamente.'),
+        menu_administrador(Usuario)
     ).
 
-% Predicado principal
-main :- 
-    writeln('Bem-vindo ao Sistema de Gerenciamento Scrum'),
-    menu_principal(none).  % Inicia com nenhum usuário logado
+% Menu para usuários comuns
+menu_comum(Usuario) :-
+    writeln('\nMenu Usuário Comum:'),
+    writeln('1. Sprints'),
+    writeln('2. Tarefas'),
+    writeln('3. Dados do Usuário'),
+    writeln('4. Logout'),
+    read_line_to_string(user_input, EscolhaString),
+    atom_number(EscolhaString, Escolha),  % Converte a string para número
+    (   Escolha = 1 -> 
+        listar_sprints_da_empresa(Usuario),
+        menu_comum(Usuario)
+    ;   Escolha = 2 -> 
+        listar_tarefas_usuario(Usuario),
+        menu_comum(Usuario)
+    ;   Escolha = 3 -> 
+        modificar_usuario(Usuario, UsuarioAtualizado),
+        menu_comum(UsuarioAtualizado)
+    ;   Escolha = 4 -> 
+        true
+    ;   
+        writeln('Opção inválida, tente novamente.'),
+        menu_comum(Usuario)
+    ).
+
+% Atualiza os dados do usuário
+update_usuario(Usuario, UsuarioAtualizado) :-
+    findall(U, usuario(U), Usuarios),  % Obtém a lista de todos os usuários
+    maplist(replace_usuario(Usuario, UsuarioAtualizado), Usuarios, UsuariosAtualizados),
+    retractall(usuario(_)),  % Remove todos os usuários antigos
+    maplist(assertz, UsuariosAtualizados).  % Adiciona a lista atualizada de usuários
+
+% Predicado auxiliar para substituir um usuário
+replace_usuario(Usuario, UsuarioAtualizado, Usuario, UsuarioAtualizado) :- !.  % Substitui o usuário
+replace_usuario(_, _, U, U).  % Mantém os outros usuários
