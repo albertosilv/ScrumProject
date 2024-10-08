@@ -20,7 +20,6 @@ menu_principal(UsuarioLogado) :-
         ;   Escolha = 2 -> 
             login(UsuarioLogado),
             (   UsuarioLogado \= none -> 
-                usuario_empresa_id(UsuarioLogado, EmpresaId),
                 format('Logado como: ~w~n', [UsuarioLogado]),
                 menu_principal(UsuarioLogado)  % Passa apenas o usuário logado
             ;   writeln('Login falhou. Tente novamente.'),

@@ -85,7 +85,7 @@ print_tarefa(TarefaId) :-
 adicionar_tarefa_a_sprint(Sprint) :- 
     write('Digite o ID da tarefa a ser adicionada à sprint:'), nl,
     read(TarefaId),
-    (   tarefa(TarefaId, Titulo, Descricao, Prioridade, backlog, CriadorId, _, EmpresaId) ->  % Verifica se a tarefa existe
+    (   tarefa(TarefaId, _, _, _, backlog, CriadorId, _, EmpresaId) ->  % Verifica se a tarefa existe e está no status 'backlog'
         retract(sprint(Sprint, Nome, Duracao, Tarefas, CriadorId, EmpresaId)),
         assertz(sprint(Sprint, Nome, Duracao, [TarefaId | Tarefas], CriadorId, EmpresaId)),
         writeln('Tarefa adicionada à sprint com sucesso!')
@@ -114,5 +114,5 @@ atribuir_tarefa(Usuario) :-
     ).
 
 % Função auxiliar para imprimir a sprint
-print_sprint(sprint(Id, Nome, Duracao, _, CriadorId, EmpresaId)) :- 
+print_sprint(sprint(Id, Nome, Duracao, _, _, _)) :- 
     format('ID: ~w, Nome: ~w, Duração: ~w dias~n', [Id, Nome, Duracao]).

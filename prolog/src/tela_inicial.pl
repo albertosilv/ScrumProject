@@ -55,10 +55,10 @@ menu_comum(Usuario) :-
 % Atualiza os dados do usuário
 update_usuario(Usuario, UsuarioAtualizado) :-
     findall(U, usuario(U), Usuarios),  % Obtém a lista de todos os usuários
-    maplist(replace_usuario(Usuario, UsuarioAtualizado), Usuarios, UsuariosAtualizados).
+    maplist(replace_usuario(Usuario, UsuarioAtualizado), Usuarios, UsuariosAtualizados),
+    retractall(usuario(_)),  % Remove todos os usuários antigos
+    maplist(assertz, UsuariosAtualizados).  % Adiciona a lista atualizada de usuários
 
-% Substitui um usuário na lista
-replace_usuario(Usuario, UsuarioAtualizado, Usuario, UsuarioAtualizado) :- 
-    usuario_id(UsuarioAtualizado, Id),
-    usuario_id(Usuario, Id), !.
-replace_usuario(_, Usuario, Usuario, Usuario).
+% Predicado auxiliar para substituir um usuário
+replace_usuario(Usuario, UsuarioAtualizado, Usuario, UsuarioAtualizado) :- !.  % Substitui o usuário
+replace_usuario(_, _, U, U).  % Mantém os outros usuários

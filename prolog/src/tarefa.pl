@@ -11,6 +11,7 @@ status_tarefa(concluido).
 % Estrutura da tarefa
 :- dynamic tarefa/7.
 
+
 % Função para listar as tarefas com status de 'backlog' para uma empresa específica
 listar_tarefas_backlog(Usuario) :- 
     usuario_empresa_id(Usuario, EmpresaId),  % Obtém o ID da empresa do usuário
@@ -38,7 +39,7 @@ processar_opcao(1, Usuario) :-
     adicionar_tarefa(Usuario),  % Chama a função para adicionar uma nova tarefa
     listar_tarefas_backlog(Usuario).  % Chama a função novamente para mostrar as tarefas atualizadas
 processar_opcao(2, _) :- 
-    writeln('Voltando ao menu anterior...').
+    writeln('Voltando ao menu anterior.').
 processar_opcao(_, Usuario) :- 
     writeln('Opção inválida, tente novamente.'),
     listar_tarefas_backlog(Usuario).  % Chama a função novamente para mostrar as tarefas
@@ -68,9 +69,12 @@ tarefa_de_usuario(Usuario, tarefa(_, _, _, _, _, CriadorId, _, _)) :-
 tarefa_de_usuario(Usuario, tarefa(_, _, _, _, _, _, ResponsavelId, _)) :- 
     usuario_id(Usuario, ResponsavelId).
 
+
 % Função para listar as tarefas do usuário
 listar_tarefas_usuario(Usuario) :- 
-    findall(Tarefa, tarefa(_, _, _, _, _, _, _, _), Tarefas),  % Obtém todas as tarefas
+    findall(tarefa(Id, Titulo, Descricao, Prioridade, Status, CriadorId, ResponsavelId), 
+            tarefa(Id, Titulo, Descricao, Prioridade, Status, CriadorId, ResponsavelId), 
+            Tarefas),  % Obtém todas as tarefas
     include(tarefa_de_usuario(Usuario), Tarefas, TarefasUsuario),  % Filtra tarefas do usuário
     (   TarefasUsuario = []
     ->  write('O usuário não possui tarefas.'), nl
@@ -79,7 +83,7 @@ listar_tarefas_usuario(Usuario) :-
         write('Digite o ID da tarefa que deseja modificar o status ou 0 para sair:'), nl,
         read(TarefaIdEscolhida),
         (   TarefaIdEscolhida = 0
-        ->  true  % Sai se 0 for escolhido
+        ->  nl  % Apenas nova linha para melhor formatação
         ;   modificar_status(TarefaIdEscolhida)  % Chama a função para modificar o status
         )
     ).
