@@ -6,7 +6,7 @@
 :- use_module(tela_inicial).
 
 % Menu principal
-menu_principal(Usuarios, Tarefas, Sprints, UsuarioLogado) :-
+menu_principal(UsuarioLogado) :-
     (   UsuarioLogado = none ->
         writeln('\nMenu Principal:'),
         writeln('1. Cadastrar Usuário'),
@@ -15,35 +15,32 @@ menu_principal(Usuarios, Tarefas, Sprints, UsuarioLogado) :-
         writeln('Escolha uma opção: '),
         read(Escolha),
         (   Escolha = 1 -> 
-            cadastrar_usuario(Usuario, UsuariosAtualizados),
-            menu_principal(UsuariosAtualizados, Tarefas, Sprints, none)
+            cadastrar_usuario(),
+            menu_principal(none)
         ;   Escolha = 2 -> 
-            login(Usuarios, UsuarioLogado),
+            login(UsuarioLogado),
             (   UsuarioLogado \= none -> 
                 usuario_empresa_id(UsuarioLogado, EmpresaId),
-                findall(Tarefa, tarefa_empresa_id(Tarefa, EmpresaId), TarefasFiltradas),
-                findall(Sprint, sprint_empresa_id(Sprint, EmpresaId), SprintsFiltrados),
                 format('Logado como: ~w~n', [UsuarioLogado]),
-                menu_principal(Usuarios, TarefasFiltradas, SprintsFiltrados, UsuarioLogado)
+                menu_principal(UsuarioLogado)  % Passa apenas o usuário logado
             ;   writeln('Login falhou. Tente novamente.'),
-                menu_principal(Usuarios, Tarefas, Sprints, none)
+                menu_principal(none)
             )
         ;   Escolha = 3 -> 
             writeln('Saindo...')
         ;   
             writeln('Opção inválida, tente novamente.'),
-            menu_principal(Usuarios, Tarefas, Sprints, none)
+            menu_principal(none)
         )
-    ;   % Se usuário está logado
+    ;   % Se o usuário está logado
         (   usuario_papel(UsuarioLogado, product_owner) ; usuario_papel(UsuarioLogado, scrum_master) ->
-            menu_administrador(UsuarioLogado, Usuarios, Tarefas, Sprints, UsuariosAtualizados, TarefasAtualizadas, SprintsAtualizados),
-            menu_principal(UsuariosAtualizados, TarefasAtualizadas, SprintsAtualizados, none)
-        ;   menu_comum(UsuarioLogado, Usuarios, Tarefas, Sprints, UsuariosAtualizados, TarefasAtualizadas, SprintsAtualizados),
-            menu_principal(UsuariosAtualizados, TarefasAtualizadas, SprintsAtualizados, none)
-        )
+            menu_administrador(UsuarioLogado)
+        ;   menu_comum(UsuarioLogado)
+        ),
+        menu_principal(UsuarioLogado)  % Retorna ao menu principal
     ).
 
 % Predicado principal
 main :- 
     writeln('Bem-vindo ao Sistema de Gerenciamento Scrum'),
-    menu_principal([], [], [], none).
+    menu_principal(none).  % Inicia com nenhum usuário logado
